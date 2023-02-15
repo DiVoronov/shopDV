@@ -7,6 +7,7 @@ import { RootState } from '../app/store';
 import './index.css';
 
 import './page.module.scss';
+import { ButtonSendOrder } from '../features/buttonSendOrder/ButtonSendOrder';
 
 export const CartPage = () => {
 
@@ -22,7 +23,9 @@ export const CartPage = () => {
         <Box component='div' className='header-title'>Your Cart</Box>
       }
       {/* <FindArea/> */}
-      <ItemsList services={cart}/>
+      <ItemsList services={cart} isCart={true}/>
+
+      <ButtonSendOrder/>
     </Box>
   );
 };

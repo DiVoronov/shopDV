@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Box } from '@mui/material';
 
-export const StyledNavbar = styled.div`
+export const StyledNavbar = styled(Box)`
 height: 2.5rem;
 margin: auto;
 background: orange;
@@ -33,7 +34,6 @@ font-weight: 700;
     cursor: pointer;
   }
 }
-
 
 
 `;

@@ -11,16 +11,16 @@ export const Navbar = () => {
   ];
 
   return (
-    <StyledNavbar>
-      {
-        path.map( item => {
-          return (
-            <Box key={item.name}>
-              <NavLink to={item.link}>{item.name}</NavLink>
-            </Box>
-          )
-        })
-      }
-    </StyledNavbar>
+      <StyledNavbar>
+        {
+          path.map( item => {
+            return (
+              <Box key={item.name}>
+                <NavLink to={item.link}>{item.name}</NavLink>
+              </Box>
+            )
+          })
+        }
+      </StyledNavbar>
   );
 };

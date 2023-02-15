@@ -15,7 +15,7 @@ export const ItemsListPage = () => {
     <Box>
       <Box component='div' className='header-title'>Main list page</Box>
       {/* <FindArea/> */}
-      <ItemsList services={services}/>
+      <ItemsList services={services} isCart={false}/>
     </Box>
   );
 };

@@ -8,6 +8,7 @@ import './index.css';
 
 import './page.module.scss';
 import { ButtonSendOrder } from '../features/buttonSendOrder/ButtonSendOrder';
+import { ButtonTest } from '../features/buttonSendOrder/ButtonTest';
 
 export const CartPage = () => {
 
@@ -26,6 +27,7 @@ export const CartPage = () => {
       <ItemsList services={cart} isCart={true}/>
 
       <ButtonSendOrder/>
+      <ButtonTest/>
     </Box>
   );
 };

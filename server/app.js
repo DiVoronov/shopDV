@@ -3,7 +3,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const Message = require('node-telegram-bot-api');
 const WebAppInfo = require('node-telegram-bot-api');
 const KeyboardButton = require('node-telegram-bot-api');
-
+const cors = require('cors');
 const express = require('express');
 const app = express();
 const port = 3000;
@@ -12,26 +12,46 @@ const token = require('./env');
 
 const bot = new TelegramBot(token, {polling: true});
 
-let idChatFromWebApp = 304194410;
+app.use(express.json());
+app.use(cors());
+
 
 app.get('/', (req, res) => {
-  // console.log(req.body),
+  console.log('BODY GET:', req.body),
   res.send('Hello World!')
 });
 
-app.post('/send_bot', (req, res) => {
+app.post('/send_bot', async (req, res) => {
   console.log('receiving data ...');
   // console.log('body is ', req.body);
-  // console.log(req);
-  // bot.onText()
-  // bot.sendMessage(idChatFromWebApp, `your cart is: ${req.body}`);
-  // bot.sendMessage(idChatFromWebApp, `your baseUrl is: ${req.baseUrl}`);
-  // bot.sendMessage(idChatFromWebApp, `your ip is: ${req.ip}`);
-  // bot.sendMessage(idChatFromWebApp, `your url is: ${req.url}`);
-  // const queryID = req.body.queryID;
-  console.log(req.body);
+  
+  console.log('BODY POST:', req.body);
+  const { queryId, cart, user } = req.body;
+  try {
+    const finalList = cart.map( (item, index) => `${index + 1}: ${item.title}`);
+    const finalListWithoutIndex = cart.map( (item, index) => `${item.title}`);
+
+    await bot.answerWebAppQuery(queryId, {
+      type: 'article', 
+      id: queryId, 
+      title: 'success', 
+      input_message_content: {
+        message_text: `your cart FROM answerWebAppQuery is: ${finalList.join('; ')}`
+      }
+    });
+    await bot.sendMessage(user.id, `Your cart is:`);
+    finalListWithoutIndex.map( (item, index) => bot.sendMessage(user.id, `${index + 1}: ${item}`));
+
+    return res.status(200).json({});
+  } catch (error) {
+    
+    // await bot.sendMessage(user.id, `your cart ERROR !!!!!  is: ${JSON.stringify({data: req.body.cart})}`);
+
+    return res.status(500).json({});
+
+  }
   // bot.answerWebAppQuery(queryID);
-  res.send(req.body);
+  // res.send(req.body);
 });
 
 app.listen(port, () => {
@@ -39,47 +59,12 @@ app.listen(port, () => {
 });
 
 
-
-// bot.setChatMenuButton({chat_id: idChatFromWebApp, menu_button: {
-//   web_app: 'https://divoronov.github.io/shopDV/',
-
-// }})
-// chat_id: idChatFromWebApp, menu_button: {web_app: 'https://divoronov.github.io/shopDV/'}
-
-
-// const buttons = bot.getChatMenuButton({chat_id: idChatFromWebApp});
-// console.log('butt', buttons);
-
-// const keyboardButton = new KeyboardButton(token);
-// console.log('keyboard', keyboardButton.keyboard = ['ff', 34])
-
 bot.setMyCommands([
   {command: '/start', description: 'Начать'},
   {command: '/info', description: 'Информация о запросах'},
   {command: '/send', description: 'Информация о запросах'},
 
 ]);
-
-// const webAppInitData = new WebAppInitData(token);
-// console.log(webAppInitData)
-
-// for (key in webAppInitData) {
-//   console.log(key)
-// }
-
-
-// const dataFromMessage = new Message(token);
-// const i = dataFrom._events;
-// console.log(Message.web_app_data);
-// console.log(dataFrom.web_app_data);
-
-// webAppInitData.on('web_app_data', msg => console.log(msg))
-// webAppInitData.on('message', msg => console.log(msg))
-
-// dataFromMessage.on('web_app_data', msg => console.log(msg))
-// dataFromMessage.on('message', msg => console.log(msg))
-
-// console.log('MESSAGE', dataFromMessage.text)
 
 const webAppData = new WebAppInfo(token);
 const webAppDataURL = webAppData.url = 'https://divoronov.github.io/shopDV/';
@@ -89,7 +74,8 @@ bot.on('message', async message => {
   const nameUser = message.from.username;
   const textUser = message.text;
   const chatID = message.chat.id;
-  idChatFromWebApp = chatID;
+  const webAppData = message.web_app_data;
+  // idChatFromWebApp = chatID;
   console.log('chatID', chatID)
 
   if (textUser === '/start') {
@@ -103,7 +89,11 @@ bot.on('message', async message => {
     // {text: 'visit site', web_app: 'https://divoronov.github.io/shopDV/'}
   } else if (textUser === '/info') {
     await bot.sendMessage(chatID, `You can choose service`)
-  };
+  } else if (textUser?.match(/your cart FROM answerWebAppQuery/gm)) {
+    console.log('webAppData', webAppData);
+    await bot.sendMessage(chatID, `Your order was saved by ShopDV_Bot`)
+
+  }
   // } else if (textUser === 'visit site') { 
   //   await bot.sendMessage(chatID, `https://divoronov.github.io/shopDV/`)
   // } else {
